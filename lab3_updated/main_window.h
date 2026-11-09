@@ -28,6 +28,7 @@ private:
     void OnLButtonUp(int x, int y);
     void OnMouseMove(int x, int y);
     void OnCaptureChanged();
+ bool OnEraseBkgnd(HDC hdc);
     void OnPaint();
     void OnDestroy();
 
