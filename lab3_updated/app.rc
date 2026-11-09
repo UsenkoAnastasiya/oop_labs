@@ -1,0 +1,4 @@
+#include <windows.h>
+
+// Манифест: візуальні стилі (comctl32 v6)
+1 RT_MANIFEST "app.manifest"
