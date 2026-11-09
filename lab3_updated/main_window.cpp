@@ -1,12 +1,13 @@
-﻿// main_window.cpp - реалізація головного вікна
+// main_window.cpp - реалізація головного вікна
 #include "main_window.h"
 #include "ids.h"
 #include "variant.h"
 
-namespace {
-const wchar_t CLASS_NAME[] = L"Lab3EditorWindow";
-const wchar_t WINDOW_TITLE[] =
-    L"Lab3 - Графічний редактор - Усенко Анастасія (ІМ-51)";
+namespace
+{
+    const wchar_t CLASS_NAME[] = L"Lab3EditorWindow";
+    const wchar_t WINDOW_TITLE[] =
+        L"Lab3 - Графічний редактор - Усенко Анастасія (ІМ-51)";
 }
 
 MainWindow::MainWindow()
@@ -61,10 +62,11 @@ bool MainWindow::Create(HINSTANCE hInstance, int nCmdShow)
     HMENU menu = BuildMenu();
 
     HWND h = CreateWindowExW(0, CLASS_NAME, WINDOW_TITLE,
-        WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
-        CW_USEDEFAULT, CW_USEDEFAULT, 900, 620,
-        NULL, menu, hInstance, this);
-    if (h == NULL) {
+                             WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
+                             CW_USEDEFAULT, CW_USEDEFAULT, 900, 620,
+                             NULL, menu, hInstance, this);
+    if (h == NULL)
+    {
         DestroyMenu(menu);
         return false;
     }
@@ -76,14 +78,17 @@ bool MainWindow::Create(HINSTANCE hInstance, int nCmdShow)
 // Статична віконна процедура лише передає повідомлення об'єкту класу
 LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-    MainWindow* self;
-    if (msg == WM_NCCREATE) {
-        CREATESTRUCTW* cs = (CREATESTRUCTW*)lp;
-        self = (MainWindow*)cs->lpCreateParams;
+    MainWindow *self;
+    if (msg == WM_NCCREATE)
+    {
+        CREATESTRUCTW *cs = (CREATESTRUCTW *)lp;
+        self = (MainWindow *)cs->lpCreateParams;
         self->hwnd = hWnd;
         SetWindowLongPtrW(hWnd, GWLP_USERDATA, (LONG_PTR)self);
-    } else {
-        self = (MainWindow*)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
+    }
+    else
+    {
+        self = (MainWindow *)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
     }
     if (self == NULL)
         return DefWindowProcW(hWnd, msg, wp, lp);
@@ -92,7 +97,8 @@ LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 LRESULT MainWindow::HandleMessage(UINT msg, WPARAM wp, LPARAM lp)
 {
-    switch (msg) {
+    switch (msg)
+    {
     case WM_CREATE:
         return OnCreate() ? 0 : -1;
     case WM_SIZE:
@@ -119,7 +125,7 @@ LRESULT MainWindow::HandleMessage(UINT msg, WPARAM wp, LPARAM lp)
         OnCaptureChanged();
         return 0;
     case WM_ERASEBKGND:
-        return 1;   // фон малюється в OnPaint (подвійна буферизація)
+        return OnEraseBkgnd((HDC)wp) ? 1 : 0;
     case WM_PAINT:
         OnPaint();
         return 0;
@@ -152,7 +158,8 @@ void MainWindow::SelectObjectType(int id)
 
 void MainWindow::OnCommand(int id)
 {
-    switch (id) {
+    switch (id)
+    {
     case IDM_POINT:
     case IDM_LINE:
     case IDM_RECT:
@@ -166,13 +173,14 @@ void MainWindow::OnCommand(int id)
     case IDM_EXIT:
         DestroyWindow(hwnd);
         break;
-    case IDM_ABOUT: {
+    case IDM_ABOUT:
+    {
         wchar_t text[256];
         wsprintfW(text,
-            L"Lab3 - Графічний редактор\n"
-            L"Виконала: Усенко Анастасія, група ІМ-51\n\n"
-            L"Ж = %d, розмір масиву вказівників N = %d",
-            Variant::ZH, Variant::N);
+                  L"Lab3 - Графічний редактор\n"
+                  L"Виконала: Усенко Анастасія, група ІМ-51\n\n"
+                  L"Ж = %d, розмір масиву вказівників N = %d",
+                  Variant::ZH, Variant::N);
         MessageBoxW(hwnd, text, L"Про програму", MB_OK | MB_ICONINFORMATION);
         break;
     }
@@ -182,9 +190,10 @@ void MainWindow::OnCommand(int id)
 // Підказки (tooltips) кнопок панелі інструментів
 LRESULT MainWindow::OnNotify(LPARAM lp)
 {
-    NMHDR* hdr = (NMHDR*)lp;
-    if (hdr->code == TTN_GETDISPINFOW) {
-        NMTTDISPINFOW* info = (NMTTDISPINFOW*)lp;
+    NMHDR *hdr = (NMHDR *)lp;
+    if (hdr->code == TTN_GETDISPINFOW)
+    {
+        NMTTDISPINFOW *info = (NMTTDISPINFOW *)lp;
         info->lpszText = (LPWSTR)toolbar.GetTipText((int)hdr->idFrom);
     }
     return 0;
@@ -195,7 +204,8 @@ void MainWindow::OnInitMenuPopup(HMENU hPopup, UINT, BOOL isSystemMenu)
 {
     if (isSystemMenu)
         return;
-    if (hPopup == hObjectsMenu) {
+    if (hPopup == hObjectsMenu)
+    {
         CheckMenuRadioItem(hPopup, IDM_POINT, IDM_ELLIPSE,
                            IDM_POINT + editor.GetType(), MF_BYCOMMAND);
     }
@@ -203,7 +213,8 @@ void MainWindow::OnInitMenuPopup(HMENU hPopup, UINT, BOOL isSystemMenu)
 
 void MainWindow::OnLButtonDown(int x, int y)
 {
-    if (!editor.OnLBdown(x, y)) {
+    if (!editor.OnLBdown(x, y))
+    {
         wchar_t text[128];
         wsprintfW(text, L"Масив заповнено: максимум %d об\u2019єктів.",
                   Variant::N);
@@ -224,7 +235,8 @@ void MainWindow::OnLButtonUp(int x, int y)
 
 void MainWindow::OnMouseMove(int x, int y)
 {
-    if (editor.IsDrawing()) {
+    if (editor.IsDrawing())
+    {
         editor.OnMouseMove(x, y);
         InvalidateRect(hwnd, NULL, FALSE);
     }
@@ -232,12 +244,19 @@ void MainWindow::OnMouseMove(int x, int y)
 
 void MainWindow::OnCaptureChanged()
 {
-    if (editor.IsDrawing()) {
+    if (editor.IsDrawing())
+    {
         editor.Cancel();
         InvalidateRect(hwnd, NULL, FALSE);
     }
 }
-
+bool MainWindow::OnEraseBkgnd(HDC hdc)
+{
+    RECT rc;
+    GetClipBox(hdc, &rc);
+    FillRect(hdc, &rc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+    return true;
+}
 void MainWindow::OnPaint()
 {
     PAINTSTRUCT ps;
@@ -245,7 +264,8 @@ void MainWindow::OnPaint()
 
     RECT rc;
     GetClientRect(hwnd, &rc);
-    if (rc.right > 0 && rc.bottom > 0) {
+    if (rc.right > 0 && rc.bottom > 0)
+    {
         HDC mem = CreateCompatibleDC(hdc);
         HBITMAP bmp = CreateCompatibleBitmap(hdc, rc.right, rc.bottom);
         HGDIOBJ oldBmp = SelectObject(mem, bmp);
